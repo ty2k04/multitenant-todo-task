@@ -1,0 +1,73 @@
+services:
+  proxy:
+    build: ./proxy
+    image: multitenant-todo-task/proxy:${TAG:-dev}
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    depends_on:
+      frontend:
+        condition: service_started
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [todo-net]
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BUILD_TAG: "${TAG:-dev}"
+    image: multitenant-todo-task/frontend:${TAG:-dev}
+    restart: unless-stopped
+    networks: [todo-net]
+  api:
+    build: { context: ./api, target: production }
+    image: multitenant-todo-task/api:${TAG:-dev}
+    environment:
+      DB_HOST: db
+      DB_NAME: todo_app
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      TOKEN_SECRET: ${TOKEN_SECRET}
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [todo-net]
+  worker:
+    build: { context: ./worker, target: production }
+    image: multitenant-todo-task/worker:${TAG:-dev}
+    environment:
+      DB_HOST: db
+      DB_NAME: todo_app
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      POLL_SECONDS: 5
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+    networks: [todo-net]
+  db:
+    build: ./db
+    image: multitenant-todo-task/db:${TAG:-dev}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: todo_app
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes: [todo-db-data:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+    networks: [todo-net]
+volumes:
+  todo-db-data:
+networks:
+  todo-net:
+
