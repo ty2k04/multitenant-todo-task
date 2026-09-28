@@ -109,6 +109,22 @@ def delete_todo(user_id, todo_id):
     if not changed: return jsonify({"error": "todo not found"}), 404
     return jsonify({"deleted": True})
 
+@app.get("/api/stats")
+@auth_required
+def stats(user_id):
+    connection = get_db()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT COUNT(*) AS total, SUM(completed = 1) AS completed FROM todos WHERE user_id=%s",
+        (user_id,),
+    )
+    row = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    total = int(row["total"] or 0)
+    completed = int(row["completed"] or 0)
+    return jsonify({"total": total, "completed": completed, "pending": total - completed})
+
 @app.get("/api/notifications")
 @auth_required
 def notifications(user_id):

@@ -16,3 +16,9 @@ def test_tampered_token_is_rejected():
 def test_todos_require_authentication():
     assert app.test_client().get("/api/todos").status_code == 401
 
+def test_stats_requires_authentication():
+    assert app.test_client().get("/api/stats").status_code == 401
+
+def test_stats_route_exists():
+    routes = {rule.rule for rule in app.url_map.iter_rules()}
+    assert "/api/stats" in routes
