@@ -4,7 +4,7 @@
 
 | Member | Role |
 | --- | --- |
-| Tyron James Beza | Project Lead, Scrum Master, Integration, and final verification |
+| Tyron James Beza | Project Lead, Scrum Master, Integration, Jenkins, and final verification |
 | Rhea Mae Mendoza | Frontend and Quality Assurance |
 | Kristine Camille Bowman | Backend and Database |
 | Samantha Maxene Garcia | Infrastructure, Worker, and Jenkins |
