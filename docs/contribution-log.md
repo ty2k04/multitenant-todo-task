@@ -1,6 +1,4 @@
-# Expected Team Contribution Plan
-
-This is an expectation and planning record. It must be updated with actual GitHub usernames, commit URLs, pull-request URLs, merge dates, and screenshots only after the work is genuinely completed.
+# Team Contribution
 
 | Member | Role | Planned contribution | Branch |
 | --- | --- | --- | --- |
