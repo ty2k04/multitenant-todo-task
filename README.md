@@ -31,18 +31,46 @@ A Dockerized multi-user todo application using Flask, MySQL, Nginx, Docker Compo
 ## Project Structure
 
 ```text
-.
-|-- api/          Flask API, Dockerfile, requirements, tests
-|-- db/           MySQL Dockerfile and init.sql
-|-- frontend/     Static UI and Dockerfile
-|-- proxy/        Nginx Dockerfile and nginx.conf
-|-- worker/       Background worker, Dockerfile, tests
-|-- infra/jenkins Jenkins container setup
-|-- docs/         Project and contribution documentation
-|-- docker-compose.yml
-|-- Jenkinsfile
-|-- .env.example
-`-- README.md
+multitenant-todo-task/
+|-- Jenkinsfile                         # pipeline as code
+|-- docker-compose.yml                  # application stack
+|-- .env.example                        # safe placeholder values only
+|-- .gitignore                          # ignores .env and local files
+|-- README.md                           # setup, architecture, team and usage
+|-- docs/
+|   |-- contribution-log.md             # member contribution record
+|   `-- project-proposal.md             # project proposal and roles
+|-- proxy/                              # web server and reverse proxy
+|   |-- Dockerfile
+|   |-- .dockerignore
+|   `-- nginx.conf
+|-- frontend/                           # browser user interface
+|   |-- Dockerfile
+|   |-- .dockerignore
+|   |-- dockerignore
+|   `-- index.html
+|-- api/                                # Flask backend service
+|   |-- Dockerfile
+|   |-- .dockerignore
+|   |-- requirements.txt
+|   |-- app.py
+|   `-- tests/
+|       `-- test_app.py
+|-- worker/                             # background worker service
+|   |-- Dockerfile
+|   |-- .dockerignore
+|   |-- requirements.txt
+|   |-- worker.py
+|   `-- tests/
+|       `-- test_worker.py
+|-- db/                                 # MySQL schema and seed setup
+|   |-- Dockerfile
+|   |-- .dockerignore
+|   `-- init.sql
+`-- infra/
+    `-- jenkins/                        # Jenkins is deployed separately
+        |-- Dockerfile
+        `-- docker-compose.yml
 ```
 
 ## Requirements
