@@ -25,6 +25,22 @@ pipeline {
         '''
       }
     }
+    stage('Selenium UI Test') {
+      steps {
+        withCredentials([file(credentialsId: 'multitenant-todo-task-env', variable: 'ENV_FILE')]) {
+          sh '''
+            cp "$ENV_FILE" .env
+            docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env up -d selenium
+            docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env run --rm ui-tests
+          '''
+        }
+      }
+      post {
+        always {
+          sh 'docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env stop selenium || true'
+        }
+      }
+    }
   }
   post {
     success { echo "Build ${TAG} is live" }

@@ -34,6 +34,7 @@ A Dockerized multi-user todo application using Flask, MySQL, Nginx, Docker Compo
 multitenant-todo-task/
 |-- Jenkinsfile                         # pipeline as code
 |-- docker-compose.yml                  # application stack
+|-- docker-compose.ui-test.yml          # Selenium test services
 |-- .env.example                        # safe placeholder values only
 |-- .gitignore                          # ignores .env and local files
 |-- README.md                           # setup, architecture, team and usage
@@ -63,6 +64,11 @@ multitenant-todo-task/
 |   |-- worker.py
 |   `-- tests/
 |       `-- test_worker.py
+|-- ui-tests/                           # Selenium browser test
+|   |-- Dockerfile
+|   |-- .dockerignore
+|   |-- requirements.txt
+|   `-- test_ui.py
 |-- db/                                 # MySQL schema and seed setup
 |   |-- Dockerfile
 |   |-- .dockerignore
@@ -136,9 +142,11 @@ Only the proxy publishes a host application port: `8080`. All services use the i
 ```powershell
 docker build --target test -t multitenant-todo-task/api:test ./api
 docker build --target test -t multitenant-todo-task/worker:test ./worker
+docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env up -d selenium
+docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env run --rm ui-tests
 ```
 
-A failed test returns a non-zero exit code and blocks deployment in Jenkins.
+A failed unit or Selenium UI test returns a non-zero exit code and blocks the Jenkins pipeline.
 
 ## Jenkins
 
@@ -153,12 +161,13 @@ Script Path: Jenkinsfile
 Pipeline stages:
 
 1. Checkout - downloads the GitHub revision.
-2. Test - runs API and worker tests.
+2. Test - runs API and worker unit tests.
 3. Build Images - builds Docker images.
 4. Deploy - starts the Compose application.
 5. Smoke Test - checks the frontend and API health endpoint.
+6. Selenium UI Test - opens the deployed application in a headless Chrome browser, registers a user, adds a todo, and verifies that it appears.
 
-The Jenkins Secret file credential ID is `multitenant-todo-task-env`. The Jenkinsfile declares `githubPush()`; configure a GitHub webhook for automatic builds or use **Build Now**.
+The Jenkins Secret file credential ID is `multitenant-todo-task-env`. The Jenkinsfile uses the GitHub push trigger. In Jenkins, the job must have **GitHub hook trigger for GITScm polling** enabled under **Build Triggers**. In GitHub, add a repository webhook pointing to `http://<reachable-jenkins-host>/github-webhook/`, select **application/json**, and enable the **Pushes** event. Push a commit and verify that Jenkins starts without clicking **Build Now**.
 
 ## Build Tags and Rollback
 
