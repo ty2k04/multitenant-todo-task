@@ -2,6 +2,12 @@ services:
   selenium:
     image: selenium/standalone-chrome:4.25.0-20241010
     shm_size: 2gb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4444/status | grep -q ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
     networks: [todo-net]
 
   ui-tests:
@@ -13,7 +19,7 @@ services:
       proxy:
         condition: service_started
       selenium:
-        condition: service_started
+        condition: service_healthy
     networks: [todo-net]
 
 networks:
