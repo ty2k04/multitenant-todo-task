@@ -48,7 +48,6 @@ multitenant-todo-task/
 |-- frontend/                           # browser user interface
 |   |-- Dockerfile
 |   |-- .dockerignore
-|   |-- dockerignore
 |   `-- index.html
 |-- api/                                # Flask backend service
 |   |-- Dockerfile
