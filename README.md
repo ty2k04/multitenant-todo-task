@@ -233,15 +233,3 @@ docker compose --env-file .env up -d --build --force-recreate
 ### Jenkins cannot access GitHub
 
 Use the plain URL `https://github.com/ty2k04/multitenant-todo-task.git`. If the repository is private, configure a GitHub Personal Access Token in Jenkins credentials.
-
-## Security Notes
-
-- Never commit `.env` or real passwords.
-- Use `.env.example` for variable names only.
-- Use Jenkins Secret file credentials for deployment secrets.
-- Database access stays inside the Docker network.
-
-## Documentation
-
-Additional documentation is available in `docs/`, `FROM-SCRATCH-GROUP-BUILD-GUIDE.md`, and `MULTITENANT-TODO-TASK-MASTER-GUIDE.md`.
-
