@@ -6,7 +6,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY worker.py .
 COPY tests ./tests
 FROM base AS test
-RUN pytest -q
+CMD ["pytest", "-q"]
 FROM python:3.12-slim AS production
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1

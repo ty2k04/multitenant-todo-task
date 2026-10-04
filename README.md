@@ -141,6 +141,8 @@ Only the proxy publishes a host application port: `8080`. All services use the i
 ```powershell
 docker build --target test -t multitenant-todo-task/api:test ./api
 docker build --target test -t multitenant-todo-task/worker:test ./worker
+docker run --rm multitenant-todo-task/api:test pytest -q
+docker run --rm multitenant-todo-task/worker:test pytest -q
 docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env up -d selenium
 docker compose -f docker-compose.yml -f docker-compose.ui-test.yml --env-file .env run --rm ui-tests
 ```

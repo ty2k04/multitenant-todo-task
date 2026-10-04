@@ -5,7 +5,41 @@ pipeline {
   options { disableConcurrentBuilds(); buildDiscarder(logRotator(numToKeepStr: '15')) }
   stages {
     stage('Checkout') { steps { checkout scm } }
-    stage('Test') { steps { sh 'docker build --target test -t multitenant-todo-task/api:test ./api'; sh 'docker build --target test -t multitenant-todo-task/worker:test ./worker' } }
+    stage('Test') {
+      steps {
+        sh '''
+          set -e
+          mkdir -p test-results
+          docker build --target test -t multitenant-todo-task/api:test ./api
+          docker build --target test -t multitenant-todo-task/worker:test ./worker
+
+          docker create --name api-unit-test multitenant-todo-task/api:test pytest -q --junitxml=/tmp/api-junit.xml
+          set +e
+          docker start -a api-unit-test
+          api_status=$?
+          set -e
+          docker cp api-unit-test:/tmp/api-junit.xml test-results/api-junit.xml || true
+          docker rm api-unit-test
+
+          docker create --name worker-unit-test multitenant-todo-task/worker:test pytest -q --junitxml=/tmp/worker-junit.xml
+          set +e
+          docker start -a worker-unit-test
+          worker_status=$?
+          set -e
+          docker cp worker-unit-test:/tmp/worker-junit.xml test-results/worker-junit.xml || true
+          docker rm worker-unit-test
+
+          if [ "$api_status" -ne 0 ] || [ "$worker_status" -ne 0 ]; then
+            exit 1
+          fi
+        '''
+      }
+      post {
+        always {
+          junit testResults: 'test-results/*.xml', allowEmptyResults: false
+        }
+      }
+    }
     stage('Build Images') { steps { sh 'docker compose build' } }
     stage('Deploy') {
       steps {
