@@ -123,6 +123,19 @@ git commit -m "Build frontend and authentication interface"
 git push -u origin rhea-frontend
 ~~~
 
+Rhea's Docker verification command is:
+
+~~~powershell
+docker build -t multitenant-todo-task/frontend:test ./frontend
+~~~
+
+Before Samantha's infrastructure pull request is merged, Rhea should run only the frontend docker build command. Her branch will not yet contain docker-compose.yml or .env.example, so a Compose command at that stage will correctly fail with an env-file error. After the API and Compose services are available, Rhea also runs:
+
+~~~powershell
+docker compose --env-file .env.example up -d --build frontend proxy
+docker compose --env-file .env.example ps
+~~~
+
 Rhea later adds a follow-up commit for the task counter and clear-completed behavior if the first pull request does not include them.
 
 ## Kristine's required files
@@ -183,6 +196,7 @@ proxy/nginx.conf
 proxy/.dockerignore
 docker-compose.yml
 Jenkinsfile
+.env.example
 infra/jenkins/Dockerfile
 infra/jenkins/docker-compose.yml
 ~~~
@@ -194,6 +208,8 @@ Samantha runs:
 ~~~powershell
 docker compose --env-file .env.example config
 docker build --target test -t multitenant-todo-task/worker:test ./worker
+docker build -t multitenant-todo-task/proxy:test ./proxy
+docker build -t multitenant-todo-task/jenkins:test ./infra/jenkins
 docker compose --env-file .env.example up -d --build
 docker compose --env-file .env.example ps
 ~~~
