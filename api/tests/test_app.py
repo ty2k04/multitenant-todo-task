@@ -22,6 +22,3 @@ def test_stats_requires_authentication():
 def test_stats_route_exists():
     routes = {rule.rule for rule in app.url_map.iter_rules()}
     assert "/api/stats" in routes
-
-def test_demo_intentional_failure():
-    assert False, "Intentional presentation failure"
